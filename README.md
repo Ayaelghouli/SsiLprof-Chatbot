@@ -138,3 +138,130 @@ L'application sera disponible sur `http://127.0.0.1:8000`
 ---
 
 ## Projet de Fin d'Études — 2025/2026
+
+
+
+------------------------------------------------------------------------------ liste des commandes niveau deploiement -----------------------------------------------------------
+
+================================================================
+   SSILPROF CHATBOT — RÉSUMÉ DU DÉPLOIEMENT SUR VM
+================================================================
+
+1. INSTALLER LES DÉPENDANCES PYTHON
+--------------------------------------
+sudo apt install -y python3.10 python3.10-venv python3-pip
+
+
+2. CLONER LE PROJET
+---------------------
+cd /opt
+git clone https://github.com/Ayaelghouli/SsiLprof-Chatbot.git
+cd SsiLprof-Chatbot/backend
+
+
+3. CRÉER L'ENVIRONNEMENT VIRTUEL ET INSTALLER LES PACKAGES
+------------------------------------------------------------
+python3.10 -m venv env
+source env/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install motor "pydantic[email]"
+
+
+4. TRANSFÉRER LES FICHIERS DE DONNÉES (depuis la machine locale)
+-----------------------------------------------------------------
+scp backend/data/intents.json administrateur@<ip-vm>:/home/administrateur/SsiLprof-Chatbot/backend/data/
+scp backend/data/data_complet.json administrateur@<ip-vm>:/home/administrateur/SsiLprof-Chatbot/backend/data/
+
+
+5. ENTRAÎNER LE MODÈLE ML
+---------------------------
+python -m src.training.train_intent
+
+
+6. INSTALLER ET DÉMARRER MONGODB
+----------------------------------
+wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb.gpg
+echo "deb [signed-by=/usr/share/keyrings/mongodb.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt update && sudo apt install -y mongodb-org
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+
+7. LANCER LE SERVEUR EN ARRIÈRE-PLAN AVEC TMUX
+------------------------------------------------
+sudo apt install -y tmux
+tmux new -s ssilprof
+source env/bin/activate
+python server.py
+# Appuyer sur Ctrl+B puis D pour détacher
+
+
+8. CONFIGURER NGINX
+---------------------
+sudo nano /etc/nginx/sites-available/ssilprof
+
+--- coller cette configuration ---
+server {
+    listen 80;
+    server_name _;
+
+    location /static/ {
+        alias /home/administrateur/SsiLprof-Chatbot/frontend/;
+    }
+
+    location / {
+        root /home/administrateur/SsiLprof-Chatbot/frontend;
+        index index.html;
+        try_files $uri $uri/ =404;
+    }
+
+    location /chat {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /login {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /signup {
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    location /recommendations {
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
+--- fin de la configuration ---
+
+sudo ln -s /etc/nginx/sites-available/ssilprof /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/172.16.20.58
+sudo nginx -t
+sudo systemctl restart nginx
+sudo chmod -R 755 /home/administrateur/SsiLprof-Chatbot/
+
+
+9. ACCÉDER À L'APPLICATION
+----------------------------
+http://172.16.20.74
+
+
+================================================================
+   REDÉMARRER APRÈS UN REBOOT
+================================================================
+sudo systemctl start mongod
+tmux new -s ssilprof
+cd /home/administrateur/SsiLprof-Chatbot/backend
+source env/bin/activate
+python server.py
+
+================================================================
+   COMMANDES UTILES
+================================================================
+tmux attach -t ssilprof                       # rattacher la session serveur
+sudo systemctl status mongod                  # vérifier l'état de MongoDB
+sudo tail -f /var/log/nginx/error.log         # consulter les erreurs Nginx
+sudo systemctl restart nginx                  # redémarrer Nginx
+================================================================
