@@ -1,0 +1,242 @@
+{
+  "date": "2026-05-01T20:49:34.184260",
+  "global_score": 8.9,
+  "total_passed": 31,
+  "total_steps": 35,
+  "scenarios": [
+    {
+      "scenario": "Médecine — Bac PC 15.0",
+      "passed": 15,
+      "total": 16,
+      "score": 9.4,
+      "details": [
+        {
+          "step": "Message d'accueil",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Bonjour 👋 Je suis **Ssi Lprof**, ton conseiller d'orientation.\n\n1️⃣ **Orientation Scolaire** — Trouver l'école selon ton profil\n2️⃣ **Bourses & Logement** — Aides financières et cité universitaire\n\nTape **1** ou **2**, ou dis-moi directement 😊"
+        },
+        {
+          "step": "Intent orientation → demande bac",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Pour t'orienter, j'ai besoin de savoir : quel est ton type de Bac ?"
+        },
+        {
+          "step": "Bac PC → demande moyenne",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Quelle est ta moyenne générale ? "
+        },
+        {
+          "step": "Moyenne 15 → demande objectif",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Quel domaine t'intéresse le plus ? (Médecine, Ingénierie, Commerce...)"
+        },
+        {
+          "step": "Objectif médecine → FMP dans réponse",
+          "passed": true,
+          "duration": 1.62,
+          "reply_preview": "Pour la médecine, il y a quelques options à considérer :\n\n* La Faculté de Médecine et de Pharmacie (FMP) est une option très compétitive, avec un seuil minimal de 12.00 au bac. Étant donné que ta moyenne est de 15.0, tu as une chance d'être présélectionné, mais il faudra réussir le concours écrit co"
+        },
+        {
+          "step": "Fiche FMP — seuil 12.00",
+          "passed": true,
+          "duration": 1.44,
+          "reply_preview": "La Faculté de Médecine et de Pharmacie (FMP) ! C'est une excellente choix pour ceux qui veulent poursuivre des études en médecine ou en pharmacie. \n\nLa FMP est une faculté publique qui forme des docteurs en médecine générale sur 6 ans, des pharmaciens et des chirurgiens dentistes. Pour y accéder, il"
+        },
+        {
+          "step": "Question courte → réponse courte + accessible",
+          "passed": false,
+          "duration": 0.8,
+          "reply_preview": "Non, 15 ne suffit pas pour la Faculté de Médecine et de Pharmacie (FMP). Le seuil minimal est de 12,00, mais en pratique, le concours est très compétitif. Avec une moyenne de 15,00, il faudra vraiment bien performer au concours pour avoir une chance d'être admis. C'est ⚠️ LIMITE, il faudra être très"
+        },
+        {
+          "step": "ISPITS détectée",
+          "passed": true,
+          "duration": 1.17,
+          "reply_preview": "L'ISPITS, c'est l'Institut Supérieur des Professions Infirmières et Techniques de Santé. C'est un institut public qui forme des infirmiers et des techniciens de santé spécialisés sur 3 ans, avec des filières comme l'infirmier polyvalent, la sage-femme, la kinésithérapie, la radiologie et l'anesthési"
+        },
+        {
+          "step": "Mention très bien → Jidara",
+          "passed": true,
+          "duration": 2.83,
+          "reply_preview": "Félicitations pour ta mention Très Bien ! 🎉 Avec une telle mention, tu as de bonnes chances d'obtenir une bourse. Il y a plusieurs options de bourses qui pourraient t'intéresser, comme la Bourse de Mérite Istihqaq (Fondation Mohammed VI de l'Éducation) ou la Bourse Jidara (Fondation Marocaine de l'É"
+        },
+        {
+          "step": "Détails Jidara",
+          "passed": true,
+          "duration": 10.89,
+          "reply_preview": "Jidara, c'est une bourse d'excellence et d'accompagnement, proposée par la Fondation Marocaine de l'Étudiant. Elle est réservée aux étudiants qui ont obtenu une mention Bien ou Très Bien au baccalauréat et qui ont des revenus familiaux limités. Cette bourse offre une aide financière, un ordinateur, "
+        },
+        {
+          "step": "Logement → ONOUSC",
+          "passed": true,
+          "duration": 11.0,
+          "reply_preview": "Si tu intègres la Faculté de Médecine et de Pharmacie (FMP) à Rabat, tu peux bénéficier d'un hébergement en cité universitaire grâce à l'ONOUSC. Les chambres et les cantines universitaires sont proposées à un prix symbolique. Pour en bénéficier, il faut s'inscrire en ligne sur le site www.onousc.ma."
+        },
+        {
+          "step": "Reset objectif → ingénierie",
+          "passed": true,
+          "duration": 11.78,
+          "reply_preview": "Pas de problème, mon frère ! Il semble que tu as un Bac PC avec une moyenne de 15,0, et maintenant tu veux te lancer dans l'ingénierie. \n\nIl y a quelques options qui pourraient t'intéresser :\n\n* L'École Nationale Supérieure d'Arts et Métiers (ENSAM) : c'est une grande école d'ingénieurs qui propose "
+        },
+        {
+          "step": "Comparaison ENSA vs ENSAM",
+          "passed": true,
+          "duration": 12.68,
+          "reply_preview": "Salut mon frère ! 🙏\n\nEntre ENSA et ENSAM, c'est un choix difficile, mais je vais te donner quelques éléments pour t'aider à décider. \n\nTout d'abord, regarde les filières qu'elles proposent : ENSA offre des filières comme le génie informatique, la cybersécurité, l'intelligence artificielle, le génie "
+        },
+        {
+          "step": "Fiche ENSAM (pas ENSA!)",
+          "passed": true,
+          "duration": 12.45,
+          "reply_preview": "L'ENSAM, c'est l'École Nationale Supérieure d'Arts et Métiers ! C'est une grande école d'ingénieurs d'État qui se spécialise dans le génie industriel et mécanique. Elle propose des formations de 5 ans après le baccalauréat.\n\nPour intégrer l'ENSAM, il faut passer par une présélection suivie d'un conc"
+        },
+        {
+          "step": "Remerciement",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Avec plaisir 😊 Bon courage pour tes études !"
+        },
+        {
+          "step": "Fin conversation",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Au revoir 👋 Bonne chance pour ton parcours !"
+        }
+      ]
+    },
+    {
+      "scenario": "Bourses & Logement — Bac SM 13.0",
+      "passed": 8,
+      "total": 11,
+      "score": 7.3,
+      "details": [
+        {
+          "step": "Accueil",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Bonjour 👋 Je suis **Ssi Lprof**, ton conseiller d'orientation.\n\n1️⃣ **Orientation Scolaire** — Trouver l'école selon ton profil\n2️⃣ **Bourses & Logement** — Aides financières et cité universitaire\n\nTape **1** ou **2**, ou dis-moi directement 😊"
+        },
+        {
+          "step": "Intent bourse",
+          "passed": false,
+          "duration": 0.03,
+          "reply_preview": "Pour t'orienter, j'ai besoin de savoir : quel est ton type de Bac ?"
+        },
+        {
+          "step": "Liste des bourses",
+          "passed": true,
+          "duration": 10.68,
+          "reply_preview": "Salut, petit frère ! Je vois que tu cherches des infos sur les bourses au Maroc. Eh bien, je vais te donner un aperçu général des options disponibles.\n\nIl y a plusieurs types de bourses au Maroc, mais je vais te parler de quelques-unes des plus connues :\n\n* La bourse Minhaty : c'est une bourse socia"
+        },
+        {
+          "step": "Minhaty — étapes inscription",
+          "passed": true,
+          "duration": 9.95,
+          "reply_preview": "Pour s'inscrire à Minhaty, il faut d'abord être inscrit au Registre Social Unifié (RSU) au moins 24 heures avant. Ensuite, vous pouvez vous rendre sur le site officiel de Minhaty à l'adresse www.minhaty.ma et suivre les étapes d'inscription. N'oubliez pas que la nationalité marocaine est obligatoire"
+        },
+        {
+          "step": "Montant bourse Minhaty",
+          "passed": true,
+          "duration": 10.25,
+          "reply_preview": "Le montant de la bourse varie selon les programmes. Par exemple, la bourse Minhaty offre 6334 DH pour une bourse complète ou 3167 DH pour une demi-bourse, versés en trois tranches. Il est préférable de consulter le site officiel de chaque programme pour obtenir les informations les plus à jour sur l"
+        },
+        {
+          "step": "Logement → ONOUSC",
+          "passed": true,
+          "duration": 10.97,
+          "reply_preview": "Pour un logement étudiant, je te recommande de vérifier les possibilités offertes par l'ONOUSC (Office National des Œuvres Universitaires Sociales). Ils proposent des chambres et des cantines universitaires à prix symbolique. Tu peux t'inscrire en ligne sur leur site officiel : www.onousc.ma. Les cr"
+        },
+        {
+          "step": "Switch bourse → orientation",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Pour t'orienter, j'ai besoin de savoir : quel est ton type de Bac ?"
+        },
+        {
+          "step": "Bac SM → demande moyenne",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Quelle est ta moyenne générale ? "
+        },
+        {
+          "step": "Moyenne 13 → demande objectif",
+          "passed": false,
+          "duration": 12.31,
+          "reply_preview": "Une moyenne de 13, c'est un bon début ! Avec une moyenne de 13 et un bac SM, tu as des chances d'accéder à certaines écoles. \n\nPour l'EST, le seuil est généralement entre 13,50 et 16,00, donc c'est ⚠️ LIMITE, mais ça dépend de la ville et de la filière. \n\nPour l'ENSA, le seuil est de 12,00 pour les "
+        },
+        {
+          "step": "Objectif informatique → écoles",
+          "passed": true,
+          "duration": 11.61,
+          "reply_preview": "L'informatique, c'est un domaine passionnant ! \n\nIl y a plusieurs écoles qui proposent des formations en informatique. Voici quelques options :\n\n* EST (École Supérieure de Technologie) : ils ont une filière en informatique, et l'admission se fait sur la base de la moyenne du bac. Le seuil est généra"
+        },
+        {
+          "step": "ENSA seuil SM 12.00 → accessible",
+          "passed": false,
+          "duration": 12.1,
+          "reply_preview": "Avec une moyenne de 13 en SM, tu es en dessous du seuil estimé pour l'ENSA, qui est de 12.00 pour les sciences mathématiques. Cependant, comme c'est une estimation, je dirais que c'est ⚠️ LIMITE. Il faudrait vérifier les conditions d'admission et les seuils réels sur le site officiel de l'ENSA pour "
+        }
+      ]
+    },
+    {
+      "scenario": "Edge Cases — Robustesse",
+      "passed": 8,
+      "total": 8,
+      "score": 10.0,
+      "details": [
+        {
+          "step": "Start normal",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Bonjour 👋 Je suis **Ssi Lprof**, ton conseiller d'orientation.\n\n1️⃣ **Orientation Scolaire** — Trouver l'école selon ton profil\n2️⃣ **Bourses & Logement** — Aides financières et cité universitaire\n\nTape **1** ou **2**, ou dis-moi directement 😊"
+        },
+        {
+          "step": "Texte incompréhensible — pas de crash",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Pour t'orienter, j'ai besoin de savoir : quel est ton type de Bac ?"
+        },
+        {
+          "step": "Bac SVT reconnu",
+          "passed": true,
+          "duration": 0.0,
+          "reply_preview": "Quelle est ta moyenne générale ? "
+        },
+        {
+          "step": "Moyenne faible — pas de crash",
+          "passed": true,
+          "duration": 0.01,
+          "reply_preview": "Quel domaine t'intéresse le plus ? (Médecine, Ingénierie, Commerce...)"
+        },
+        {
+          "step": "Objectif médecine avec moyenne faible",
+          "passed": true,
+          "duration": 12.41,
+          "reply_preview": "Pour étudier la médecine, il y a quelques options à considérer :\n\n* La Faculté de Médecine et de Pharmacie (FMP) : c'est une faculté publique qui forme des docteurs en médecine générale sur 6 ans, des pharmaciens et des chirurgiens dentistes. Le seuil minimal pour passer le concours est de 12.00, ma"
+        },
+        {
+          "step": "Site web ENSA",
+          "passed": true,
+          "duration": 12.69,
+          "reply_preview": "Le site web de l'École Nationale des Sciences Appliquées (ENSA) est : http://www.ensa-maroc.ma"
+        },
+        {
+          "step": "OFPPT détecté",
+          "passed": true,
+          "duration": 11.28,
+          "reply_preview": "L'OFPPT, c'est l'Office de la Formation Professionnelle et de la Promotion du Travail ! C'est une institution qui propose des formations professionnelles de qualité pour préparer les jeunes à intégrer le marché du travail. Ils offrent des filières variées, comme le développement digital, l'infrastru"
+        },
+        {
+          "step": "Pilote → ERA ou AIAC",
+          "passed": true,
+          "duration": 12.63,
+          "reply_preview": "Pour devenir pilote, il faut d'abord considérer les options disponibles. Il y a deux écoles qui pourraient t'intéresser : l'École Royale de l'Air (ERA) et l'Académie Internationale Mohammed VI de l'Aviation Civile (AIAC).\n\nL'ERA forme des pilotes pour les Forces Royales Air, mais il faut avoir un ba"
+        }
+      ]
+    }
+  ]
+}

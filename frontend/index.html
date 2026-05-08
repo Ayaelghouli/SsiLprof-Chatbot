@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ssi Lprof - Assistant Orientation</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <div id="app">
+
+        <!-- welcome -->
+        <div id="welcome" class="page page-center">
+            <div class="logo">
+                <span>🎓</span>
+            </div>
+            <h1>Ssi Lprof</h1>
+            <p class="muted">Ton avenir commence ici avec l'intelligence artificielle.</p>
+            <button onclick="switchScreen('auth')" class="btn">Commencer</button>
+        </div>
+
+        <!-- auth -->
+        <div id="auth" class="page page-center hidden">
+            <div class="auth-box">
+                <div class="auth-header">
+                    <h2>Ravi de te revoir !</h2>
+                    <p class="muted">Connecte-toi pour continuer</p>
+                </div>
+
+                <form id="login-form" onsubmit="handleAuth(event)">
+                    <input type="email" id="login-email" placeholder="Email" required class="field">
+                    <input type="password" id="login-password" placeholder="Mot de passe" required class="field">
+                    <button type="submit" class="btn">Se connecter</button>
+                    <p class="auth-switch">
+                        Pas de compte ?
+                        <a href="javascript:void(0)" onclick="switchTab('signup')" class="link">Créer un compte</a>
+                    </p>
+                </form>
+
+                <form id="signup-form" onsubmit="handleAuth(event)" class="hidden">
+                    <input type="text" id="signup-name" placeholder="Nom complet" required class="field">
+                    <input type="email" id="signup-email" placeholder="Email" required class="field">
+                    <input type="password" id="signup-password" placeholder="Mot de passe" required class="field">
+                    <button type="submit" class="btn">Créer un compte</button>
+                    <p class="auth-switch">
+                        Déjà inscrit ?
+                        <a href="javascript:void(0)" onclick="switchTab('login')" class="link">Se connecter</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- chat -->
+        <div id="chat" class="page page-chat hidden">
+
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-icon">🎓</div>
+                    <h1>Ssi Lprof</h1>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <div onclick="showTab('assistant')" id="nav-assistant" class="nav-link active">
+                        Assistant IA
+                    </div>
+                    <div onclick="showTab('results')" id="nav-results" class="nav-link">
+                        Résultats
+                    </div>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="profile-card">
+                        <p id="username">Utilisateur</p>
+                        <div class="progress-track">
+                            <div id="progress-bar" class="progress-fill"></div>
+                        </div>
+                        <p class="muted">Profil: <span id="progress-pct">0%</span></p>
+                    </div>
+                    <button onclick="location.reload()" class="logout">
+                        Déconnexion
+                    </button>
+                </div>
+            </aside>
+
+            <main class="chat-main">
+
+                <div id="tab-assistant" class="tab-content">
+                    <header class="chat-header">
+                        <span>Assistant IA</span>
+                    </header>
+                    <div id="messages" class="messages scrollbar"></div>
+                    <div class="input-zone">
+                        <form onsubmit="event.preventDefault(); sendMessage(document.getElementById('input').value); document.getElementById('input').value='';"
+                              class="chat-input">
+                            <input id="input" type="text" placeholder="Posez votre question...">
+                            <button type="submit" class="send">➤</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab-results" class="tab-content hidden">
+                    <div class="results-container">
+                        <h2>Tes Recommandations</h2>
+                        <div id="results-grid" class="results-grid"></div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
