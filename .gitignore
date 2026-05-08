@@ -20,8 +20,6 @@ venv/
 .venv/
 
 
-backend/data/*.json
-
 
 .vscode/
 .idea/
