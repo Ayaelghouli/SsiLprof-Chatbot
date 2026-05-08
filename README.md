@@ -1,4 +1,8 @@
 # Ssi Lprof — Assistant d'Orientation Scolaire
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-Local-brightgreen)
+![Groq](https://img.shields.io/badge/LLM-Groq-orange)
 
 Chatbot intelligent d'orientation pour les lycéens marocains. Il analyse le profil de l'élève (bac, moyenne, objectif) et recommande des établissements adaptés ou informe sur les bourses et aides sociales.
 
@@ -10,29 +14,32 @@ Chatbot intelligent d'orientation pour les lycéens marocains. Il analyse le pro
 SsilProf_Chatbot/
 ├── backend/
 │   ├── data/
-│   │   ├── intents.json          # patterns d'entraînement
-│   │   └── data_complet.json     # base de connaissance (écoles + bourses)
+│   │   ├── intents.json
+│   │   └── data_complet.json
 │   ├── models/
-│   │   └── intent_pipeline.pkl   # modèle ML entraîné
+│   │   └── intent_pipeline.pkl
 │   ├── src/
 │   │   ├── inference/
-│   │   │   ├── bot_engine.py     # logique principale du chatbot
-│   │   │   └── semantic_rag.py   # recherche hybride FAISS + BM25
+│   │   │   ├── bot_engine.py
+│   │   │   └── semantic_rag.py
 │   │   ├── profiling/
-│   │   │   └── profile_engine.py # extraction et gestion du profil élève
+│   │   │   └── profile_engine.py
 │   │   ├── scoring/
-│   │   │   └── scoring_engine.py # scoring et recommandation d'écoles
+│   │   │   └── scoring_engine.py
+│   │   ├── training/
+│   │   │   └── train_intent.py
 │   │   └── utils/
-│   │       └── text_cleaner.py   # nettoyage du texte
-│   ├── server.py                 # API FastAPI
-│   └── database.py               # connexion MongoDB
+│   │       └── text_cleaner.py
+│   ├── server.py
+│   ├── database.py
+│   └── requirements.txt
 ├── frontend/
-│   ├── css/style.css
-│   ├── js/script.js
-│   └── index.html
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
 ├── tests/
-├── requirements.txt
-└── .env
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -81,12 +88,12 @@ score_final = 0.65 × score_sémantique (FAISS) + 0.35 × score_lexical (BM25)
 ## Installation
 
 ```bash
-git clone https://github.com/votre-repo/ssilprof-chatbot.git
+git clone https://github.com/Ayaelghouli/SsiLprof-Chatbot.git
 cd ssilprof-chatbot/backend
 
 python -m venv env
 env\Scripts\activate        # Windows
-# source env/bin/activate   # Linux/Mac
+
 
 pip install -r requirements.txt
 ```
