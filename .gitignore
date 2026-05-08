@@ -9,10 +9,7 @@ __pycache__/
 *.egg-info/
 
 
-models/
-*.pkl
-*.faiss
-*.index
+
 
 
 env/
