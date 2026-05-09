@@ -52,7 +52,7 @@ synonyms = {
     "conditions":  ["criteres", "exigences"],
     "filiere":     ["specialite", "domaine"],
     "moyenne":     ["note", "resultat", "score"],
-    "details":     ["informations", "renseignements"],
+    "details":     ["informations"],
     "obtenir":     ["avoir", "recevoir"],
     "inscription": ["candidature", "dossier"],
 }

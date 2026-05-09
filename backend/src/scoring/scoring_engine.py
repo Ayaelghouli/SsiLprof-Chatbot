@@ -42,7 +42,6 @@ OBJECTIF_KEYWORDS = {
     "architecture":  ["architecture", "urbanisme", "design espace"],
     "agriculture":   ["agriculture", "agronomie", "veterinaire", "agro"],
     "droit":         ["droit", "juridique", "loi", "justice"],
-    "enseignement":  ["enseignement", "education", "pedagogie"],
     "militaire":     ["militaire", "armee", "defense", "securite", "gendarmerie"],
     "communication": ["communication", "journalisme", "medias", "presse"],
     "sport":         ["sport", "activite physique", "coach"],
@@ -93,11 +92,6 @@ def match_objectif(objectif: str, school: dict) -> int:
 
 
 def score_ecole(profile: dict, school: dict) -> int:
-    # scoring breakdown:
-    #   eligibility (seuil)  → up to 50 pts
-    #   objectif match       → up to 30 pts
-    #   CNC/CPGE only        → -50 pts (push to bottom)
-
     moyenne    = float(profile.get("moyenne") or 0)
     bac        = str(profile.get("bac") or "").upper()
     objectif   = str(profile.get("objectif") or "")
@@ -110,18 +104,21 @@ def score_ecole(profile: dict, school: dict) -> int:
     else:
         seuil = extract_seuil(seuil_text, bac)
         marge = moyenne - seuil
-
         if marge >= 0:
             score += 50
-            score += min(int(marge * 3), 10)  # bonus for margin, max +10
+            score += min(int(marge * 3), 10)
         elif marge >= -1:
-            score += 20  # close to seuil
+            score += 20
 
-    # objectif match
-    score += match_objectif(objectif, school) * 10
+    # objectif match — plus de poids
+    obj_score = match_objectif(objectif, school) * 20  # 20 au lieu de 10
+    score += obj_score
+
+    # NOUVEAU : pénalité si 0 match objectif
+    if objectif and match_objectif(objectif, school) == 0:
+        score -= 40  # pénalise fortement les écoles hors domaine
 
     return max(score, 0)
-
 
 def recommend_schools(profile: dict, schools: list, top_k: int = 3) -> list:
     results = []

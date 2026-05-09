@@ -3,8 +3,10 @@ import os
 import joblib
 from groq import Groq
 from dotenv import load_dotenv
+import re 
 
-from src.inference.semantic_rag import semantic_search, build_index
+from src.inference.semantic_rag import semantic_search, build_index, metadata
+import src.inference.semantic_rag as rag_module
 from src.profiling.profile_engine import StudentProfile, extract_info_from_text
 from src.utils.text_cleaner import clean_text
 from src.scoring.scoring_engine import recommend_schools
@@ -38,7 +40,7 @@ build_index(knowledge_base)
 OBJECTIFS = {
     "medecine":     ["medecine", "médecine", "docteur", "pharmacie", "dentaire", "infirmier", "paramedical", "kinesitherapie", "sage femme"],
     "ingenierie":   ["ingenierie", "ingénierie", "ingenieur", "ingénieur", "genie civil", "génie civil", "genie electrique", "genie mecanique", "genie industriel", "electronique", "telecommunications"],
-    "informatique": ["informatique", "ia", "intelligence artificielle", "data science", "machine learning", "cybersecurite", "reseaux", "programmation", "developpement", "web", "mobile", "cloud"],
+    "informatique": ["informatique", "ia", "intelligence artificielle", "data science", "machine learning", "cybersecurite", "reseaux", "programmation", "developpement", "mobile", "cloud"],
     "commerce":     ["commerce", "management", "marketing", "gestion", "vente", "entrepreneuriat", "business"],
     "finance":      ["finance", "banque", "comptabilite", "audit", "assurance"],
     "droit":        ["droit", "juridique", "avocat", "sciences politiques"],
@@ -52,22 +54,25 @@ OBJECTIFS = {
 }
 
 
-def get_intent(text, threshold=0.75):
+def get_intent(text):
     if not model_pipeline:
         return None
-    cleaned = clean_text(text)
-    scores = model_pipeline.decision_function([cleaned])[0]
-    s = scores - scores.min()
-    if s.max() > 0:
-        s /= s.max()
-    idx = s.argmax()
-    return model_pipeline.classes_[idx] if s[idx] >= threshold else None
+    try:
+        cleaned = clean_text(text)
+        dec = model_pipeline.decision_function([cleaned])[0]
+        s = dec - dec.min()
+        if s.max() > 0:
+            s /= s.max()
+        idx = s.argmax()
+        return model_pipeline.classes_[idx] if s[idx] > 0.75 else None
+    except:
+        return None
 
 
-def detect_objectif(text):
-    for objectif, keywords in OBJECTIFS.items():
-        if any(kw in text for kw in keywords):
-            return objectif
+def detect_objectif(lower_text):
+    for obj, keywords in OBJECTIFS.items():
+        if any(kw in lower_text for kw in keywords):
+            return obj
     return None
 
 
@@ -75,11 +80,47 @@ def get_context(query, profile_data=None, top_k=5):
     results = semantic_search(query, top_k=top_k * 2)
     if not results:
         return []
+
+    COMMON_WORDS = {"EST", "ENA", "IMA"}
+
+    query_upper = re.sub(r"['\u2019\u2018\-]", " ", query.upper())
+    pinned = []
+
+    for school in rag_module.metadata:
+        name = school.get("School_Name", "").upper().strip()
+        if not name:
+            continue
+
+        if name in COMMON_WORDS:
+            if not re.search(r'(?:SUR|À|A|L |DE L |ENTRE)\s+' + re.escape(name) + r'\b', query_upper):
+                continue
+
+        if re.search(r'\b' + re.escape(name) + r'\b', query_upper):
+            if school not in pinned:
+                pinned.append(school)
+            if school in results:
+                results.remove(school)
+
+    def mention_pos(school):
+        name = school.get("School_Name", "").upper().strip()
+        m = re.search(r'\b' + re.escape(name) + r'\b', query_upper)
+        return m.start() if m else 999
+
+    pinned.sort(key=mention_pos)
+    results = pinned + [r for r in results if r not in pinned]
+
     if profile_data and profile_data.get("bac"):
         scored = recommend_schools(profile_data, results, top_k=top_k)
-        return [r["school"] for r in scored]
-    return results[:top_k]
+        for r in scored:
+            r["school"]["compatibilite"] = min(100, max(0, r["score"]))
+        final = [r["school"] for r in scored]
+        for p in reversed(pinned):
+            if p in final:
+                final.remove(p)
+            final.insert(0, p)
+        return final[:top_k]
 
+    return results[:top_k]
 
 def ask_groq(messages, model="llama-3.3-70b-versatile", max_tokens=500):
     res = client.chat.completions.create(
@@ -103,6 +144,21 @@ def bot_engine(user_text: str, profile: StudentProfile):
                 "1️⃣ **Orientation Scolaire** — Trouver l'école selon ton profil\n"
                 "2️⃣ **Bourses & Logement** — Aides financières et cité universitaire\n\n"
                 "Tape **1** ou **2**, ou dis-moi directement 😊"
+            ),
+            "profile": profile.data
+        }
+    # FIX 1: "2" → menu bourses مباشرة بدون ما يسول bac
+    if text.strip() == "2":
+        return {
+            "reply": (
+                "Tu cherches des infos sur les aides étudiantes 😊\n\n"
+                "Voici ce qui est disponible au Maroc :\n\n"
+                "1️⃣ **Minhaty** — Bourse sociale nationale (via RSU)\n"
+                "2️⃣ **Jidara** — Bourse excellence + ordinateur + mentor\n"
+                "3️⃣ **ONOUSC** — Logement en cité universitaire\n"
+                "4️⃣ **Entraide Nationale** — Aide pour situations précaires\n"
+                "5️⃣ **Bourse FM6** — Pour enfants du personnel enseignant\n\n"
+                "Sur laquelle tu veux plus de détails ? 💬"
             ),
             "profile": profile.data
         }
@@ -133,7 +189,10 @@ def bot_engine(user_text: str, profile: StudentProfile):
         return {"reply": missing, "profile": profile.data}
 
     # build query and retrieve context
-    query = f"{text} {profile.data.get('objectif') or ''}".strip()
+    if tag in ["question_details", "orientation_ecoles"]:
+        query = text
+    else:
+        query = f"{text} {profile.data.get('objectif') or ''}".strip()
     context = get_context(query, profile.data)
 
     print(f"rag: '{query}' → {[r.get('School_Name') for r in context[:3]]}")
@@ -155,8 +214,12 @@ DONNÉES RAG:
 ━━━━━━━━━━━━━━━━━━━━━━━━
 RÈGLES:
 1. Utilise UNIQUEMENT les données RAG ci-dessus — jamais d'invention.
-2. École demandée → compare moyenne vs seuil → ACCESSIBLE / LIMITE / DIFFICILE / INCOMPATIBLE (si CPGE requis).
+2. Pour chaque école dans les données RAG, affiche obligatoirement :
+   🎓 **NomÉcole** — {{compatibilite}}% de compatibilité
+   - Seuil : X.X | Ta moyenne : Y.Y → ✅ ACCESSIBLE / ⚠️ LIMITE / ❌ DIFFICILE
+   Utilise le champ "compatibilite" présent dans les données RAG.
 3. Bourse demandée → conditions + étapes + site officiel.
+   NE JAMAIS afficher "compatibilité" ou "seuil" pour les bourses.
 4. Question simple (suffisant? chance? site?) → 2-3 lignes directes, pas de structure.
 5. Recommandation générale → liste avec // et explication courte.
 6. Si info absente du RAG → "Je n'ai pas cette info, consulte le site officiel."
@@ -177,6 +240,39 @@ RÈGLES:
 
 # local test
 if __name__ == "__main__":
+    # ===== TEST PINNED ENSA =====
+    print("=" * 40)
+    print("TEST: pinned schools fix")
+    print("=" * 40)
+    
+    test_queries = [
+        "detail sur ENSA",
+        "L'ENSA c'est dans quelles villes ?",
+        "difference entre ENSA et ENCG",
+        "je veux faire informatique",     # pas de school name → RAG normal
+    ]
+    
+    for q in test_queries:
+        ctx = get_context(q)
+        names = [r.get("School_Name") for r in ctx[:3]]
+        q_up = q.upper()
+        
+        # check si school mentionnée est bien en premier
+        has_ensa = ctx and ctx[0].get("School_Name", "").upper() == "ENSA"
+        has_encg = ctx and any(r.get("School_Name","").upper() == "ENCG" for r in ctx[:2])
+        
+        if "ENSA" in q_up and "ENCG" not in q_up:
+            status = "✅" if has_ensa else "❌"
+        elif "ENSA" in q_up and "ENCG" in q_up:
+            status = "✅" if has_ensa and has_encg else "❌"
+        else:
+            status = "⚪"  # RAG normal, pas de vérification stricte
+            
+        print(f"{status} '{q}'")
+        print(f"   → {names}\n")
+
+    # ===== BOT NORMAL =====
+    print("=" * 40)
     session = StudentProfile()
     print("ssi lprof ready")
     while True:

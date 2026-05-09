@@ -5,15 +5,12 @@ from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 
 
-# model
 model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-
-# global storage
-documents = []
-metadata = []
-index = None
-bm25 = None
+documents        = []
+metadata         = []
+index            = None
+bm25             = None
 tokenized_corpus = []
 
 
@@ -26,15 +23,13 @@ def tokenize(text):
 def build_index(kb_data):
     global documents, metadata, index, bm25, tokenized_corpus
 
-    documents = []
-    metadata = []
+    documents        = []
+    metadata         = []
     tokenized_corpus = []
 
     # index schools
     for school in kb_data.get("ecoles", []):
-        # category repeated to boost its weight in BM25
         category = school.get("category", "")
-
         text = f"""
         orientation ecole
         {school.get("School_Name")} {school.get("full_name")}
@@ -66,13 +61,13 @@ def build_index(kb_data):
         metadata.append(bourse)
         tokenized_corpus.append(tokenize(text))
 
-    # Construction embeddings + index FAISS
+    # build FAISS index (semantic)
     embeddings = model.encode(documents, normalize_embeddings=True)
-    dim = embeddings.shape[1]
-    index = faiss.IndexFlatIP(dim)
+    dim        = embeddings.shape[1]
+    index      = faiss.IndexFlatIP(dim)
     index.add(np.array(embeddings).astype("float32"))
 
-    # Construction index BM25
+    # build BM25 index (keyword)
     bm25 = BM25Okapi(tokenized_corpus)
 
     print(f"hybrid RAG ready: {len(documents)} documents")
@@ -94,7 +89,7 @@ def semantic_search(query, top_k=5, alpha=0.65):
         return []
 
     # semantic scores via FAISS
-    q_vec = model.encode([query], normalize_embeddings=True)
+    q_vec    = model.encode([query], normalize_embeddings=True)
     scores_s, idx_s = index.search(np.array(q_vec).astype("float32"), top_k * 3)
 
     semantic_scores = {}

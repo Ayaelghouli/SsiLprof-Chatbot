@@ -25,7 +25,12 @@ class StudentProfile:
         # bourse intent — no need to ask for moyenne or objectif
         if self.data["intent"] == "bourse":
             return None
-
+        if self.data["objectif"]:
+            if not self.data["bac"]:
+                return "Pour personnaliser ma recommandation, quel est ton type de bac ? (SM, PC, SVT, technique...)"
+            if not self.data["moyenne"]:
+                return "Et quelle est ta moyenne générale ?"
+            return None
         # orientation intent — need all three
         if not self.data["bac"]:
             return "Pour t'orienter, j'ai besoin de savoir : quel est ton type de bac ? (SM, PC, SVT, économie, lettres ou technique...)"
@@ -49,7 +54,7 @@ BAC_MAP = [
     (r"\bste\b|\bstm\b|sciences?\s*(?:et\s*)?tech(?:nologies?|nique)?|[eé]lec|m[eé]ca|g[eé]nie|industriel", "STE"),
     (r"[eé]conomie|[eé]co(?:nomiques?)?|\bsgc\b|gestion|comptab|sciences?\s*[eé]co|commerce|management",    "ECO"),
     (r"lettres?|humanit[eé]s?|philosophie|sciences?\s*humaines?|histoire|litt[eé]rature?",                   "LETTRES"),
-    (r"bac\s*sci(?:entifique)?|scientifique|science(?!s\s*(de|vie|physique|math))",  "SCIENTIFIQUE"),
+    (r"bac\s*sci(?:entifique)?|scientifique",                                                                 "SCIENTIFIQUE"),
 ]
 
 OBJECTIF_MAP = [
@@ -64,7 +69,6 @@ OBJECTIF_MAP = [
     (r"architecture|archi",                                                                      "architecture"),
     (r"agriculture|agronomie|v[eé]t[eé]rinaire",                                               "agriculture"),
     (r"droit|juriste|avocat",                                                                   "droit"),
-    (r"ens(?:eignement)?|professeur|\bprof\b|[eé]ducation",                                    "enseignement"),
     (r"militaire|arm[eé]e|gendarm|police",                                                      "militaire"),
     (r"journalisme|m[eé]dia|presse|communication",                                              "communication"),
     (r"sport|coach|kinesith",                                                                   "sport"),
@@ -80,6 +84,13 @@ GRADE_PATTERNS = [
     r'bac\s+\w+\s+(1[0-9]|[89])\b',
     r'(?:^|\s)(1[0-9])\b',
 ]
+SCHOOL_NAMES = {
+    "ensa", "encg", "ensam", "inpt", "enim", "insea", "iscae",
+    "fmp", "cpge", "bts", "est", "ofppt", "iav", "aiac", "cmc",
+    "fst", "fsjes", "flsh", "hem", "ima", "isic", "ifmia", "irfc",
+    "isadac", "inas", "isitt", "apesa", "erssm", "epc", "imm",
+    "ismac", "ispits", "ena", "ista", "ista", "onousc"
+}
 
 
 def extract_info_from_text(user_input: str, client=None) -> dict:
@@ -87,11 +98,6 @@ def extract_info_from_text(user_input: str, client=None) -> dict:
     text = user_input.lower().strip()
     result = {"moyenne": None, "bac": None, "objectif": None, "interets": [], "intent": None}
 
-    # detect intent
-    if re.search(r"bourse|minhaty|jidara|logement|aide|social", text):
-        result["intent"] = "bourse"
-    elif re.search(r"orient|ecole|fac|choisir|proposer|etude", text):
-        result["intent"] = "orientation"
 
     # detect bac type
     for pattern, bac_type in BAC_MAP:
@@ -121,6 +127,12 @@ def extract_info_from_text(user_input: str, client=None) -> dict:
                 result["interets"].append(objectif)
 
     result["interets"] = result["interets"][:5]
+    if re.search(r"bourse|minhaty|jidara|logement|aide|social", text):
+        result["intent"] = "bourse"
+    elif result.get("objectif") or result.get("bac") or result.get("moyenne"):
+        result["intent"] = "orientation"
+    elif any(f" {s} " in f" {text} " for s in SCHOOL_NAMES):
+        result["intent"] = "orientation"
     return result
 
 
@@ -128,3 +140,18 @@ def build_profile(user_input: str = "") -> dict:
     student = StudentProfile()
     student.update_profile(extract_info_from_text(user_input))
     return student.data
+
+if __name__ == "__main__":
+    tests = [
+        ("je veux une bourse", "bourse"),
+        ("minhaty comment s'inscrire", "bourse"),
+        ("je veux faire médecine", "orientation"),
+        ("différence entre ENSA et ENCG", "orientation"),
+        ("bac PC 15 de moyenne", "orientation"),
+        ("je suis perdu", None),
+    ]
+    for text, expected in tests:
+        result = extract_info_from_text(text.lower())
+        intent = result.get("intent")
+        status = "✅" if intent == expected else "❌"
+        print(f"{status} '{text}' → {intent} (expected: {expected})")
