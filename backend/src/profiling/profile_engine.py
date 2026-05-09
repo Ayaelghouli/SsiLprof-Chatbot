@@ -140,18 +140,3 @@ def build_profile(user_input: str = "") -> dict:
     student = StudentProfile()
     student.update_profile(extract_info_from_text(user_input))
     return student.data
-
-if __name__ == "__main__":
-    tests = [
-        ("je veux une bourse", "bourse"),
-        ("minhaty comment s'inscrire", "bourse"),
-        ("je veux faire médecine", "orientation"),
-        ("différence entre ENSA et ENCG", "orientation"),
-        ("bac PC 15 de moyenne", "orientation"),
-        ("je suis perdu", None),
-    ]
-    for text, expected in tests:
-        result = extract_info_from_text(text.lower())
-        intent = result.get("intent")
-        status = "✅" if intent == expected else "❌"
-        print(f"{status} '{text}' → {intent} (expected: {expected})")
