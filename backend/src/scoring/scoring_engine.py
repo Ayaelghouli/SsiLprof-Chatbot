@@ -124,6 +124,9 @@ def recommend_schools(profile: dict, schools: list, top_k: int = 3) -> list:
     results = []
 
     for school in schools:
+        obj_match = match_objectif(profile.get("objectif", ""), school)
+        if profile.get("objectif") and obj_match == 0:
+            continue
         bac     = str(profile.get("bac") or "").upper()
         moyenne = float(profile.get("moyenne") or 0)
         seuil   = extract_seuil(str(school.get("Seuils", "")), bac)
@@ -137,6 +140,13 @@ def recommend_schools(profile: dict, schools: list, top_k: int = 3) -> list:
         })
 
     # eligible first, then by score, then by margin
-    results.sort(key=lambda x: (-x["score"], not x["eligible"], x["marge"]))
-
+    results.sort(
+        key=lambda x: (
+            not x["eligible"],
+            -x["score"],
+            -x["marge"]
+        )
+    )
+    for r in results:
+        print(r["school"].get("Nom"), r["score"])
     return results[:top_k]
