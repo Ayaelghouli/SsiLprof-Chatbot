@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: ssilprof_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ssilprof_backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    volumes:
+      - ./backend/models:/app/backend/models
+      - ./backend/data:/app/backend/data
+
+volumes:
+  mongo_data:
